@@ -9,11 +9,17 @@ Calculate your break-even point, analyze different pricing scenarios, and unders
 ## Key Features
 
 ⚡ Real-time calculations - Results update as you type
+
 📈 Visual break-even analysis - Interactive charts show profit/loss zones
+
 🔧 What-if scenarios - Adjust pricing and costs with sliders
+
 💾 Save and compare - Store multiple business scenarios
+
 📄 Export ready - Generate PDF reports and CSV data
+
 📱 Mobile optimized - Works perfectly on any device
+
 🚪 No signup required - Start analyzing immediately
 
 ## How to Use
