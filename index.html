@@ -1,835 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Break-Even Analysis Calculator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <title>Break-Even Analysis</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #222;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #9CAF88 0%, #6B8E5A 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
+    h1 {
+      margin-top: 20px;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    .container {
+      width: 80%;
+      max-width: 800px;
+      margin: 30px auto;
+      background: #333;
+      padding: 20px;
+      border-radius: 10px;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: white;
-        }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      color: #fff; /* White labels */
+    }
 
-        .header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
 
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
+    /* Slider styling */
+    input[type=range] {
+      width: 100%;
+      margin: 10px 0;
+      background: transparent;
+    }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 8px;
+      background: #fff;
+      border-radius: 5px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #000; /* black button */
+      margin-top: -5px;
+      cursor: pointer;
+    }
 
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-        }
+    input[type=range]::-moz-range-track {
+      height: 8px;
+      background: #fff;
+      border-radius: 5px;
+    }
+    input[type=range]::-moz-range-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #000;
+      cursor: pointer;
+    }
 
-        .card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: #4A5D23;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    input[type=range]::-ms-track {
+      height: 8px;
+      background: transparent;
+      border-color: transparent;
+      color: transparent;
+    }
+    input[type=range]::-ms-fill-lower {
+      background: #fff;
+      border-radius: 5px;
+    }
+    input[type=range]::-ms-fill-upper {
+      background: #fff;
+      border-radius: 5px;
+    }
+    input[type=range]::-ms-thumb {
+      height: 18px;
+      width: 18px;
+      border-radius: 50%;
+      background: #000;
+      cursor: pointer;
+    }
 
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
+    #results {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
 
-        .input-group label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #4A5D23;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    footer {
+      background: linear-gradient(90deg, #9CAF88 0%, #6B8E5A 50%, #4A5D23 100%);
+      color:#fff;
+      text-align:center;
+      padding:20px;
+      margin-top:50px;
+      font-size:14px;
+    }
 
-        .tooltip {
-            position: relative;
-            cursor: help;
-            color: #4A5D23;
-            font-size: 0.9rem;
-        }
+    footer a {
+      color:#fff;
+      text-decoration:none;
+      margin:0 8px;
+    }
 
-        .tooltip:hover::after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #9CAF88;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            z-index: 1000;
-        }
-
-        input[type="number"] {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.2s;
-            background: #9CAF88;
-        }
-
-        input[type="number"]:focus {
-            outline: none;
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .metric-card {
-            background: linear-gradient(135deg,#9CAF88, #6B8E5A);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 400px;
-            margin: 2rem 0;
-        }
-
-        .scenario-controls {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.9rem;
-        }
-
-        .btn-primary {
-            background: #9CAF88;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #ffffff;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: #9CAF88;
-            color: #4a5568;
-        }
-
-        .btn-secondary:hover {
-            background: #ffffff;
-        }
-
-        .sliders-section {
-            background: #9CAF88;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .slider-group {
-            margin-bottom: 1rem;
-        }
-
-        .slider-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #4a5568;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #e2e8f0;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #9CAF88;
-            cursor: pointer;
-        }
-
-        .scenarios-list {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 1rem;
-        }
-
-        .scenario-item {
-            background: #ffffff;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: between;
-            align-items: center;
-        }
-
-        .scenario-name {
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .scenario-details {
-            font-size: 0.8rem;
-            color: #ffffff;
-            margin-top: 0.25rem;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background: #c6f6d5;
-            color: #ffffff;
-            border: 1px solid #9ae6b4;
-        }
-
-        .alert-warning {
-            background: #fef5e7;
-            color: #ffffff;
-            border: 1px solid #f6d873;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .card {
-                padding: 1.5rem;
-            }
-            
-            .results-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-            
-            .scenario-controls {
-                flex-direction: column;
-            }
-        }
-    </style>
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Break-Even Analysis Calculator</h1>
-            <p>Calculate your break-even point and analyze profitability scenarios</p>
-        </div>
+  <h1>Break-Even Analysis Calculator</h1>
+  <div class="container">
+    <label for="fixedCosts">Fixed Costs ($):</label>
+    <input type="number" id="fixedCosts" value="1000">
 
-        <div class="main-content">
-            <div class="card">
-                <h2>💰 Input Parameters</h2>
-                
-                <div class="input-group">
-                    <label for="fixedCosts">
-                        Fixed Costs (Monthly)
-                        <span class="tooltip" data-tooltip="Rent, insurance, salaries, utilities - costs that don't change with production">ℹ️</span>
-                    </label>
-                    <input type="number" id="fixedCosts" placeholder="5000" value="5000" min="0">
-                </div>
+    <label for="pricePerUnit">Price per Unit ($):</label>
+    <input type="number" id="pricePerUnit" value="50">
 
-                <div class="input-group">
-                    <label for="variableCost">
-                        Variable Cost per Unit
-                        <span class="tooltip" data-tooltip="Materials, shipping, processing fees - costs that vary with each unit">ℹ️</span>
-                    </label>
-                    <input type="number" id="variableCost" placeholder="10" value="10" min="0" step="0.01">
-                </div>
+    <label for="variableCost">Variable Cost per Unit ($):</label>
+    <input type="number" id="variableCost" value="20">
 
-                <div class="input-group">
-                    <label for="sellingPrice">
-                        Selling Price per Unit
-                        <span class="tooltip" data-tooltip="The price you sell each unit for">ℹ️</span>
-                    </label>
-                    <input type="number" id="sellingPrice" placeholder="25" value="25" min="0" step="0.01">
-                </div>
+    <label for="unitsSold">Units Sold:</label>
+    <input type="range" id="unitsSold" min="0" max="500" value="100">
+    <span id="unitsSoldValue">100</span>
 
-                <div class="input-group">
-                    <label for="targetProfit">
-                        Target Profit (Optional)
-                        <span class="tooltip" data-tooltip="Additional profit goal beyond break-even">ℹ️</span>
-                    </label>
-                    <input type="number" id="targetProfit" placeholder="2000" value="0" min="0">
-                </div>
+    <div id="results"></div>
+  </div>
 
-                <div class="sliders-section">
-                    <h3>🎛️ What-If Analysis</h3>
-                    <div class="slider-group">
-                        <label>Price Adjustment: <span id="priceAdjustment">0%</span></label>
-                        <input type="range" id="priceSlider" min="-30" max="30" value="0">
-                    </div>
-                    <div class="slider-group">
-                        <label>Fixed Costs Adjustment: <span id="fixedAdjustment">0%</span></label>
-                        <input type="range" id="fixedSlider" min="-30" max="30" value="0">
-                    </div>
-                    <div class="slider-group">
-                        <label>Variable Costs Adjustment: <span id="variableAdjustment">0%</span></label>
-                        <input type="range" id="variableSlider" min="-30" max="30" value="0">
-                    </div>
-                </div>
-            </div>
+  <footer>
+    <p>© 2025 DGS Consulting — Streamline Today, Scale Tomorrow</p>
+    <p>
+      <a href="mailto:DGSConsult@consultant.com">Contact</a> |
+      <a href="https://www.linkedin.com/company/dgs-consulting/" target="_blank">LinkedIn</a> |
+      <a href="https://www.instagram.com/dgsconsult/" target="_blank">Instagram</a>
+    </p>
+  </footer>
 
-            <div class="card">
-                <h2>📈 Results</h2>
-                <div id="alertContainer"></div>
-                
-                <div class="results-grid">
-                    <div class="metric-card">
-                        <div class="metric-value" id="breakEvenUnits">0</div>
-                        <div class="metric-label">Break-Even Units</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value" id="breakEvenDollars">$0</div>
-                        <div class="metric-label">Break-Even Revenue</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value" id="contributionMargin">0%</div>
-                        <div class="metric-label">Contribution Margin</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-value" id="unitsForProfit">0</div>
-                        <div class="metric-label">Units for Target Profit</div>
-                    </div>
-                </div>
+  <script>
+    const fixedCostsInput = document.getElementById("fixedCosts");
+    const pricePerUnitInput = document.getElementById("pricePerUnit");
+    const variableCostInput = document.getElementById("variableCost");
+    const unitsSoldInput = document.getElementById("unitsSold");
+    const unitsSoldValue = document.getElementById("unitsSoldValue");
+    const resultsDiv = document.getElementById("results");
 
-                <div class="scenario-controls">
-                    <input type="text" id="scenarioName" placeholder="Scenario name..." style="flex: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px;">
-                    <button class="btn btn-primary" onclick="saveScenario()">💾 Save Scenario</button>
-                    <button class="btn btn-secondary" onclick="exportToPDF()">📄 Export PDF</button>
-                    <button class="btn btn-secondary" onclick="exportToCSV()">📊 Export CSV</button>
-                </div>
+    function calculate() {
+      const fixedCosts = parseFloat(fixedCostsInput.value);
+      const pricePerUnit = parseFloat(pricePerUnitInput.value);
+      const variableCost = parseFloat(variableCostInput.value);
+      const unitsSold = parseInt(unitsSoldInput.value);
 
-                <div class="scenarios-list" id="scenariosList"></div>
-            </div>
-        </div>
+      const contributionMargin = pricePerUnit - variableCost;
+      const breakEvenPoint = fixedCosts / contributionMargin;
+      const profit = (unitsSold * contributionMargin) - fixedCosts;
 
-        <div class="card">
-            <h2>📊 Break-Even Chart</h2>
-            <div class="chart-container">
-                <canvas id="breakEvenChart"></canvas>
-            </div>
-        </div>
+      unitsSoldValue.textContent = unitsSold;
+      resultsDiv.innerHTML = `
+        <p>Break-Even Point: ${breakEvenPoint.toFixed(2)} units</p>
+        <p>Profit at ${unitsSold} units: $${profit.toFixed(2)}</p>
+      `;
+    }
 
-        <div class="card">
-            <h2>🔍 Sensitivity Analysis</h2>
-            <div class="chart-container">
-                <canvas id="sensitivityChart"></canvas>
-            </div>
-        </div>
-    </div>
+    fixedCostsInput.addEventListener("input", calculate);
+    pricePerUnitInput.addEventListener("input", calculate);
+    variableCostInput.addEventListener("input", calculate);
+    unitsSoldInput.addEventListener("input", calculate);
 
-    <script>
-        // Global variables
-        let breakEvenChart, sensitivityChart;
-        let scenarios = JSON.parse(localStorage.getItem('breakEvenScenarios') || '[]');
-
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add event listeners for real-time calculation
-            const inputs = ['fixedCosts', 'variableCost', 'sellingPrice', 'targetProfit'];
-            inputs.forEach(id => {
-                document.getElementById(id).addEventListener('input', calculateBreakEven);
-            });
-
-            // Add event listeners for sliders
-            const sliders = ['priceSlider', 'fixedSlider', 'variableSlider'];
-            sliders.forEach(id => {
-                document.getElementById(id).addEventListener('input', handleSliderChange);
-            });
-
-            // Initialize charts and calculations
-            initializeCharts();
-            calculateBreakEven();
-            displayScenarios();
-        });
-
-        function calculateBreakEven() {
-            const fixedCosts = parseFloat(document.getElementById('fixedCosts').value) || 0;
-            const variableCost = parseFloat(document.getElementById('variableCost').value) || 0;
-            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
-            const targetProfit = parseFloat(document.getElementById('targetProfit').value) || 0;
-
-            // Apply slider adjustments
-            const priceAdj = parseFloat(document.getElementById('priceSlider').value) / 100;
-            const fixedAdj = parseFloat(document.getElementById('fixedSlider').value) / 100;
-            const variableAdj = parseFloat(document.getElementById('variableSlider').value) / 100;
-
-            const adjustedPrice = sellingPrice * (1 + priceAdj);
-            const adjustedFixed = fixedCosts * (1 + fixedAdj);
-            const adjustedVariable = variableCost * (1 + variableAdj);
-
-            // Calculate metrics
-            const contributionPerUnit = adjustedPrice - adjustedVariable;
-            const contributionMarginPercent = adjustedPrice > 0 ? (contributionPerUnit / adjustedPrice) * 100 : 0;
-
-            // Break-even calculations
-            const breakEvenUnits = contributionPerUnit > 0 ? Math.ceil(adjustedFixed / contributionPerUnit) : 0;
-            const breakEvenRevenue = breakEvenUnits * adjustedPrice;
-            const unitsForTargetProfit = contributionPerUnit > 0 ? Math.ceil((adjustedFixed + targetProfit) / contributionPerUnit) : 0;
-
-            // Update display
-            document.getElementById('breakEvenUnits').textContent = breakEvenUnits.toLocaleString();
-            document.getElementById('breakEvenDollars').textContent = '$' + breakEvenRevenue.toLocaleString();
-            document.getElementById('contributionMargin').textContent = contributionMarginPercent.toFixed(1) + '%';
-            document.getElementById('unitsForProfit').textContent = unitsForTargetProfit.toLocaleString();
-
-            // Show alerts
-            showAlerts(contributionPerUnit, contributionMarginPercent);
-
-            // Update charts
-            updateBreakEvenChart(adjustedFixed, adjustedVariable, adjustedPrice, breakEvenUnits);
-            updateSensitivityChart(fixedCosts, variableCost, sellingPrice);
-        }
-
-        function showAlerts(contributionPerUnit, contributionMargin) {
-            const alertContainer = document.getElementById('alertContainer');
-            alertContainer.innerHTML = '';
-
-            if (contributionPerUnit <= 0) {
-                alertContainer.innerHTML = '<div class="alert alert-warning">⚠️ Warning: Your selling price must be higher than variable cost per unit to achieve break-even!</div>';
-            } else if (contributionMargin < 20) {
-                alertContainer.innerHTML = '<div class="alert alert-warning">⚠️ Low contribution margin. Consider increasing price or reducing variable costs.</div>';
-            } else {
-                alertContainer.innerHTML = '<div class="alert alert-success">✅ Healthy contribution margin! Your business model looks viable.</div>';
-            }
-        }
-
-        function handleSliderChange(event) {
-            const sliderId = event.target.id;
-            const value = event.target.value;
-            
-            if (sliderId === 'priceSlider') {
-                document.getElementById('priceAdjustment').textContent = value + '%';
-            } else if (sliderId === 'fixedSlider') {
-                document.getElementById('fixedAdjustment').textContent = value + '%';
-            } else if (sliderId === 'variableSlider') {
-                document.getElementById('variableAdjustment').textContent = value + '%';
-            }
-            
-            calculateBreakEven();
-        }
-
-        function initializeCharts() {
-            // Break-even chart
-            const ctx1 = document.getElementById('breakEvenChart').getContext('2d');
-            breakEvenChart = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Total Costs',
-                        data: [],
-                        borderColor: '#f56565',
-                        backgroundColor: 'rgba(245, 101, 101, 0.1)',
-                        fill: true
-                    }, {
-                        label: 'Revenue',
-                        data: [],
-                        borderColor: '#48bb78',
-                        backgroundColor: 'rgba(72, 187, 120, 0.1)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index'
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Amount ($)'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Units Sold'
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Break-Even Analysis'
-                        },
-                        legend: {
-                            display: true
-                        }
-                    }
-                }
-            });
-
-            // Sensitivity chart
-            const ctx2 = document.getElementById('sensitivityChart').getContext('2d');
-            sensitivityChart = new Chart(ctx2, {
-                type: 'bar',
-                data: {
-                    labels: ['-15%', '-10%', '-5%', 'Current', '+5%', '+10%', '+15%'],
-                    datasets: [{
-                        label: 'Price Change Impact',
-                        data: [],
-                        backgroundColor: 'rgba(102, 126, 234, 0.6)'
-                    }, {
-                        label: 'Fixed Cost Change Impact',
-                        data: [],
-                        backgroundColor: 'rgba(245, 101, 101, 0.6)'
-                    }, {
-                        label: 'Variable Cost Change Impact',
-                        data: [],
-                        backgroundColor: 'rgba(72, 187, 120, 0.6)'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Break-Even Units'
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Sensitivity Analysis - Impact on Break-Even Point'
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateBreakEvenChart(fixedCosts, variableCost, sellingPrice, breakEvenUnits) {
-            const maxUnits = Math.max(breakEvenUnits * 1.5, 100);
-            const units = [];
-            const costs = [];
-            const revenues = [];
-
-            for (let i = 0; i <= maxUnits; i += Math.max(1, Math.floor(maxUnits / 50))) {
-                units.push(i);
-                costs.push(fixedCosts + (variableCost * i));
-                revenues.push(sellingPrice * i);
-            }
-
-            breakEvenChart.data.labels = units;
-            breakEvenChart.data.datasets[0].data = costs;
-            breakEvenChart.data.datasets[1].data = revenues;
-            breakEvenChart.update('none');
-        }
-
-        function updateSensitivityChart(fixedCosts, variableCost, sellingPrice) {
-            const changes = [-0.15, -0.10, -0.05, 0, 0.05, 0.10, 0.15];
-            const priceImpact = [];
-            const fixedImpact = [];
-            const variableImpact = [];
-
-            changes.forEach(change => {
-                const contributionMargin = sellingPrice - variableCost;
-                
-                // Price change impact
-                const newPrice = sellingPrice * (1 + change);
-                const newContribution = newPrice - variableCost;
-                const priceBreakEven = newContribution > 0 ? Math.ceil(fixedCosts / newContribution) : 0;
-                priceImpact.push(priceBreakEven);
-                
-                // Fixed cost change impact
-                const newFixed = fixedCosts * (1 + change);
-                const fixedBreakEven = contributionMargin > 0 ? Math.ceil(newFixed / contributionMargin) : 0;
-                fixedImpact.push(fixedBreakEven);
-                
-                // Variable cost change impact
-                const newVariable = variableCost * (1 + change);
-                const newContribution2 = sellingPrice - newVariable;
-                const variableBreakEven = newContribution2 > 0 ? Math.ceil(fixedCosts / newContribution2) : 0;
-                variableImpact.push(variableBreakEven);
-            });
-
-            sensitivityChart.data.datasets[0].data = priceImpact;
-            sensitivityChart.data.datasets[1].data = fixedImpact;
-            sensitivityChart.data.datasets[2].data = variableImpact;
-            sensitivityChart.update('none');
-        }
-
-        function saveScenario() {
-            const name = document.getElementById('scenarioName').value.trim();
-            if (!name) {
-                alert('Please enter a scenario name');
-                return;
-            }
-
-            const scenario = {
-                id: Date.now(),
-                name: name,
-                fixedCosts: parseFloat(document.getElementById('fixedCosts').value) || 0,
-                variableCost: parseFloat(document.getElementById('variableCost').value) || 0,
-                sellingPrice: parseFloat(document.getElementById('sellingPrice').value) || 0,
-                targetProfit: parseFloat(document.getElementById('targetProfit').value) || 0,
-                savedAt: new Date().toLocaleDateString()
-            };
-
-            scenarios.push(scenario);
-            localStorage.setItem('breakEvenScenarios', JSON.stringify(scenarios));
-            document.getElementById('scenarioName').value = '';
-            displayScenarios();
-        }
-
-        function displayScenarios() {
-            const container = document.getElementById('scenariosList');
-            container.innerHTML = '';
-
-            if (scenarios.length === 0) {
-                container.innerHTML = '<p style="color: #718096; text-align: center; padding: 2rem;">No saved scenarios yet</p>';
-                return;
-            }
-
-            scenarios.forEach(scenario => {
-                const contributionMargin = scenario.sellingPrice - scenario.variableCost;
-                const breakEvenUnits = contributionMargin > 0 ? Math.ceil(scenario.fixedCosts / contributionMargin) : 0;
-                
-                const scenarioDiv = document.createElement('div');
-                scenarioDiv.className = 'scenario-item';
-                scenarioDiv.innerHTML = `
-                    <div style="flex: 1;">
-                        <div class="scenario-name">${scenario.name}</div>
-                        <div class="scenario-details">
-                            Break-even: ${breakEvenUnits.toLocaleString()} units | 
-                            Saved: ${scenario.savedAt}
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn btn-secondary" onclick="loadScenario(${scenario.id})" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Load</button>
-                        <button class="btn btn-secondary" onclick="deleteScenario(${scenario.id})" style="padding: 0.5rem 1rem; font-size: 0.8rem; background: #feb2b2; color: #c53030;">Delete</button>
-                    </div>
-                `;
-                container.appendChild(scenarioDiv);
-            });
-        }
-
-        function loadScenario(id) {
-            const scenario = scenarios.find(s => s.id === id);
-            if (!scenario) return;
-
-            document.getElementById('fixedCosts').value = scenario.fixedCosts;
-            document.getElementById('variableCost').value = scenario.variableCost;
-            document.getElementById('sellingPrice').value = scenario.sellingPrice;
-            document.getElementById('targetProfit').value = scenario.targetProfit;
-            
-            // Reset sliders
-            document.getElementById('priceSlider').value = 0;
-            document.getElementById('fixedSlider').value = 0;
-            document.getElementById('variableSlider').value = 0;
-            document.getElementById('priceAdjustment').textContent = '0%';
-            document.getElementById('fixedAdjustment').textContent = '0%';
-            document.getElementById('variableAdjustment').textContent = '0%';
-            
-            calculateBreakEven();
-        }
-
-        function deleteScenario(id) {
-            if (confirm('Are you sure you want to delete this scenario?')) {
-                scenarios = scenarios.filter(s => s.id !== id);
-                localStorage.setItem('breakEvenScenarios', JSON.stringify(scenarios));
-                displayScenarios();
-            }
-        }
-
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // Get current values
-            const fixedCosts = parseFloat(document.getElementById('fixedCosts').value) || 0;
-            const variableCost = parseFloat(document.getElementById('variableCost').value) || 0;
-            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
-            const targetProfit = parseFloat(document.getElementById('targetProfit').value) || 0;
-            
-            const contributionMargin = sellingPrice - variableCost;
-            const breakEvenUnits = contributionMargin > 0 ? Math.ceil(fixedCosts / contributionMargin) : 0;
-            const breakEvenRevenue = breakEvenUnits * sellingPrice;
-            const contributionMarginPercent = sellingPrice > 0 ? (contributionMargin / sellingPrice) * 100 : 0;
-
-            // Add content to PDF
-            doc.setFontSize(20);
-            doc.text('Break-Even Analysis Report', 20, 30);
-            
-            doc.setFontSize(12);
-            doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 45);
-            
-            doc.setFontSize(14);
-            doc.text('Input Parameters:', 20, 65);
-            doc.setFontSize(12);
-            doc.text(`Fixed Costs (Monthly): $${fixedCosts.toLocaleString()}`, 25, 80);
-            doc.text(`Variable Cost per Unit: $${variableCost.toFixed(2)}`, 25, 95);
-            doc.text(`Selling Price per Unit: $${sellingPrice.toFixed(2)}`, 25, 110);
-            doc.text(`Target Profit: $${targetProfit.toLocaleString()}`, 25, 125);
-            
-            doc.setFontSize(14);
-            doc.text('Results:', 20, 150);
-            doc.setFontSize(12);
-            doc.text(`Break-Even Point: ${breakEvenUnits.toLocaleString()} units`, 25, 165);
-            doc.text(`Break-Even Revenue: $${breakEvenRevenue.toLocaleString()}`, 25, 180);
-            doc.text(`Contribution Margin: ${contributionMarginPercent.toFixed(1)}%`, 25, 195);
-            doc.text(`Contribution per Unit: $${contributionMargin.toFixed(2)}`, 25, 210);
-            
-            doc.save('break-even-analysis.pdf');
-        }
-
-        function exportToCSV() {
-            const fixedCosts = parseFloat(document.getElementById('fixedCosts').value) || 0;
-            const variableCost = parseFloat(document.getElementById('variableCost').value) || 0;
-            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
-            
-            let csv = 'Units,Fixed Costs,Variable Costs,Total Costs,Revenue,Profit\n';
-            
-            const contributionMargin = sellingPrice - variableCost;
-            const breakEvenUnits = contributionMargin > 0 ? Math.ceil(fixedCosts / contributionMargin) : 0;
-            const maxUnits = Math.max(breakEvenUnits * 2, 100);
-            
-            for (let i = 0; i <= maxUnits; i += Math.max(1, Math.floor(maxUnits / 100))) {
-                const totalVariableCosts = variableCost * i;
-                const totalCosts = fixedCosts + totalVariableCosts;
-                const revenue = sellingPrice * i;
-                const profit = revenue - totalCosts;
-                
-                csv += `${i},${fixedCosts},${totalVariableCosts},${totalCosts},${revenue},${profit}\n`;
-            }
-            
-            // Create and download CSV file
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'break-even-analysis.csv';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-        }
-
-        // Additional utility functions
-        function resetSliders() {
-            document.getElementById('priceSlider').value = 0;
-            document.getElementById('fixedSlider').value = 0;
-            document.getElementById('variableSlider').value = 0;
-            document.getElementById('priceAdjustment').textContent = '0%';
-            document.getElementById('fixedAdjustment').textContent = '0%';
-            document.getElementById('variableAdjustment').textContent = '0%';
-            calculateBreakEven();
-        }
-
-        // Add keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                saveScenario();
-            }
-        });
-    </script>
+    calculate();
+  </script>
 </body>
-    <footer style="
-  background: linear-gradient(90deg, #9CAF88 0%, #6B8E5A 50%, #4A5D23 100%);
-  color:#fff;
-  text-align:center;
-  padding:20px;
-  margin-top:50px;
-  font-size:14px;
-">
-  <p>© 2025 DGS Consulting — Streamline Today, Scale Tomorrow</p>
-  <p>
-    <a href="mailto:DGSConsult@consultant.com" style="color:#fff; text-decoration:none; margin:0 8px;">Contact</a> |
-    <a href="https://www.linkedin.com/company/dgs-consutling/" target="_blank" style="color:#fff; text-decoration:none; margin:0 8px;">LinkedIn</a> |
-    <a href="https://www.instagram.com/dgsconsult/" target="_blank" style="color:#fff; text-decoration:none; margin:0 8px;">Instagram</a>
-  </p>
-</footer>
 </html>
