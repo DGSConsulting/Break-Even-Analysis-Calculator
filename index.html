@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Break-Even Analysis</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -102,6 +103,19 @@
       font-size: 1.2em;
     }
 
+    /* White text for slider value */
+    #unitsSoldValue {
+      color: #fff;
+      font-weight: bold;
+    }
+
+    canvas {
+      margin-top: 30px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
     footer {
       background: linear-gradient(90deg, #9CAF88 0%, #6B8E5A 50%, #4A5D23 100%);
       color:#fff;
@@ -139,6 +153,9 @@
     <span id="unitsSoldValue">100</span>
 
     <div id="results"></div>
+
+    <canvas id="profitChart"></canvas>
+    <canvas id="breakEvenChart"></canvas>
   </div>
 
   <footer>
@@ -158,6 +175,48 @@
     const unitsSoldValue = document.getElementById("unitsSoldValue");
     const resultsDiv = document.getElementById("results");
 
+    const profitCtx = document.getElementById("profitChart").getContext("2d");
+    const breakEvenCtx = document.getElementById("breakEvenChart").getContext("2d");
+
+    let profitChart = new Chart(profitCtx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [{
+          label: "Profit ($)",
+          data: [],
+          borderColor: "green",
+          fill: false,
+          tension: 0.1
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { title: { display: true, text: "Units Sold" } },
+          y: { title: { display: true, text: "Profit ($)" } }
+        }
+      }
+    });
+
+    let breakEvenChart = new Chart(breakEvenCtx, {
+      type: "bar",
+      data: {
+        labels: ["Break-Even Point"],
+        datasets: [{
+          label: "Units",
+          data: [0],
+          backgroundColor: "orange"
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+
     function calculate() {
       const fixedCosts = parseFloat(fixedCostsInput.value);
       const pricePerUnit = parseFloat(pricePerUnitInput.value);
@@ -173,6 +232,21 @@
         <p>Break-Even Point: ${breakEvenPoint.toFixed(2)} units</p>
         <p>Profit at ${unitsSold} units: $${profit.toFixed(2)}</p>
       `;
+
+      // Update Profit Chart
+      let labels = [];
+      let profits = [];
+      for (let i = 0; i <= 500; i += 25) {
+        labels.push(i);
+        profits.push((i * contributionMargin) - fixedCosts);
+      }
+      profitChart.data.labels = labels;
+      profitChart.data.datasets[0].data = profits;
+      profitChart.update();
+
+      // Update Break-Even Chart
+      breakEvenChart.data.datasets[0].data = [breakEvenPoint];
+      breakEvenChart.update();
     }
 
     fixedCostsInput.addEventListener("input", calculate);
