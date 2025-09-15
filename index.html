@@ -67,14 +67,14 @@ h1 {
     padding: 0.75rem;
     border-radius: 0.5rem;
     border: none;
-    background-color: var(--primary-dark);
+    background: var(--primary-dark);
     color: var(--bg-primary);
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.3s, background-image 0.3s;
 }
 .calculator button:hover { 
-    background-color: var(--primary); 
+    background-image: linear-gradient(to right, var(--primary-dark), var(--primary));
 }
 
 .results { 
@@ -158,9 +158,20 @@ function calculateBreakEven() {
 
     breakEvenChart.data.labels = labels;
     breakEvenChart.data.datasets[0].data = revenueData;
+    breakEvenChart.data.datasets[0].borderColor = createGradient(ctx, labels.length, '--primary-dark', '--primary');
     breakEvenChart.data.datasets[1].data = costData;
+    breakEvenChart.data.datasets[1].borderColor = createGradient(ctx, labels.length, '--secondary', '--primary');
     breakEvenChart.data.datasets[2].data = breakEvenPointData;
     breakEvenChart.update();
+}
+
+function createGradient(ctx, length, colorStartVar, colorEndVar) {
+    const gradient = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
+    const start = getComputedStyle(document.documentElement).getPropertyValue(colorStartVar);
+    const end = getComputedStyle(document.documentElement).getPropertyValue(colorEndVar);
+    gradient.addColorStop(0, start.trim());
+    gradient.addColorStop(1, end.trim());
+    return gradient;
 }
 </script>
 
