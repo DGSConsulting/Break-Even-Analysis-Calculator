@@ -7,55 +7,85 @@
 <link rel="icon" href="assets/logo-mark.png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
+:root {
+    --primary: #9CAF88;
+    --primary-dark: #4A5D23;
+    --secondary: #6B8E5A;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+}
+
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #0f172a;
-    color: #fff;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 2rem;
 }
+
 h1 {
     font-size: 2rem;
     margin-bottom: 1rem;
+    color: var(--primary-dark);
 }
+
 .calculator {
-    background-color: #1e293b;
+    background-color: var(--bg-primary);
     padding: 2rem;
     border-radius: 1rem;
     width: 100%;
     max-width: 600px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
+
 .calculator label {
     display: block;
     margin-bottom: 0.25rem;
     font-weight: 600;
+    color: var(--text-primary);
 }
+
 .calculator input {
     width: 100%;
     padding: 0.5rem;
     margin-bottom: 1rem;
     border-radius: 0.5rem;
-    border: none;
-    background-color: #334155;
-    color: #fff;
+    border: 1px solid var(--secondary);
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
 }
+
 .calculator button {
     width: 100%;
     padding: 0.75rem;
     border-radius: 0.5rem;
     border: none;
-    background-color: #000;
-    color: #fff;
+    background-color: var(--primary-dark);
+    color: var(--bg-primary);
     font-weight: 600;
     cursor: pointer;
     transition: background 0.3s;
 }
-.calculator button:hover { background-color: #111827; }
-.results { margin-top: 1.5rem; text-align: center; }
-canvas { margin-top: 1rem; max-width: 100%; }
+.calculator button:hover { 
+    background-color: var(--primary); 
+}
+
+.results { 
+    margin-top: 1.5rem; 
+    text-align: center; 
+}
+
+canvas { 
+    margin-top: 1rem; 
+    max-width: 100%; 
+}
 </style>
 </head>
 <body>
@@ -74,7 +104,7 @@ canvas { margin-top: 1rem; max-width: 100%; }
     
     <button onclick="calculateBreakEven()">Calculate Break-Even</button>
 
-    <div class="results" id="results" style="display:none;">
+    <div class="results">
         <p id="breakEvenUnits">Units: 0</p>
         <p id="breakEvenRevenue">Revenue: $0</p>
         <canvas id="breakEvenChart"></canvas>
@@ -82,6 +112,28 @@ canvas { margin-top: 1rem; max-width: 100%; }
 </div>
 
 <script>
+const ctx = document.getElementById('breakEvenChart').getContext('2d');
+
+let breakEvenChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: Array.from({length: 10}, (_, i) => i+1),
+        datasets: [
+            { label: 'Total Revenue', data: Array(10).fill(0), borderColor: 'var(--success)', backgroundColor: 'rgba(16,185,129,0.2)', fill: true, tension: 0.4 },
+            { label: 'Total Costs', data: Array(10).fill(0), borderColor: 'var(--danger)', backgroundColor: 'rgba(239,68,68,0.2)', fill: true, tension: 0.4 },
+            { label: 'Break-Even Point', data: Array(10).fill(null), pointBackgroundColor: 'var(--warning)', pointBorderColor: 'var(--warning)', showLine: false, pointRadius: 8 }
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: 'var(--text-primary)' } }, tooltip: { mode: 'index', intersect: false } },
+        scales: { 
+            x: { ticks: { color: 'var(--text-primary)' }, title: { display: true, text: 'Units Sold', color: 'var(--text-primary)' } },
+            y: { ticks: { color: 'var(--text-primary)' }, title: { display: true, text: 'Dollars ($)', color: 'var(--text-primary)' } } 
+        }
+    }
+});
+
 function calculateBreakEven() {
     const fixedCost = parseFloat(document.getElementById('fixedCost').value);
     const variableCost = parseFloat(document.getElementById('variableCost').value);
@@ -97,33 +149,18 @@ function calculateBreakEven() {
 
     document.getElementById('breakEvenUnits').innerText = `Units: ${breakEvenUnits.toFixed(2)}`;
     document.getElementById('breakEvenRevenue').innerText = `Revenue: $${breakEvenRevenue.toFixed(2)}`;
-    document.getElementById('results').style.display = 'block';
 
     const maxUnits = Math.ceil(breakEvenUnits * 2);
     const labels = Array.from({length: maxUnits}, (_, i) => i+1);
     const revenueData = labels.map(u => u * pricePerUnit);
     const costData = labels.map(u => fixedCost + u * variableCost);
+    const breakEvenPointData = labels.map(u => u === Math.ceil(breakEvenUnits) ? breakEvenRevenue : null);
 
-    const ctx = document.getElementById('breakEvenChart').getContext('2d');
-    if(window.breakEvenChart) window.breakEvenChart.destroy();
-
-    window.breakEvenChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                { label: 'Total Revenue', data: revenueData, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.2)', fill: true, tension: 0.4 },
-                { label: 'Total Costs', data: costData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.2)', fill: true, tension: 0.4 },
-                { label: 'Break-Even Point', data: labels.map(u => u === Math.ceil(breakEvenUnits) ? breakEvenRevenue : null), pointBackgroundColor: '#facc15', pointBorderColor: '#f59e0b', showLine: false, pointRadius: 8 }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { labels: { color: '#fff' } }, tooltip: { mode: 'index', intersect: false } },
-            scales: { x: { ticks: { color: '#fff' }, title: { display: true, text: 'Units Sold', color: '#fff' } },
-                      y: { ticks: { color: '#fff' }, title: { display: true, text: 'Dollars ($)', color: '#fff' } } }
-        }
-    });
+    breakEvenChart.data.labels = labels;
+    breakEvenChart.data.datasets[0].data = revenueData;
+    breakEvenChart.data.datasets[1].data = costData;
+    breakEvenChart.data.datasets[2].data = breakEvenPointData;
+    breakEvenChart.update();
 }
 </script>
 
