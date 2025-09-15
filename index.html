@@ -24,16 +24,37 @@ body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-secondary);
     color: var(--text-primary);
+    margin: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 2rem;
+    min-height: 100vh;
 }
 
-h1 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: var(--primary-dark);
+header {
+    background-color: var(--primary);
+    padding: 1rem 2rem;
+    color: var(--bg-primary);
+    text-align: center;
+}
+
+header img {
+    height: 50px;
+    vertical-align: middle;
+}
+
+header h1 {
+    display: inline;
+    font-size: 1.8rem;
+    margin-left: 1rem;
+    vertical-align: middle;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
 }
 
 .calculator {
@@ -73,6 +94,7 @@ h1 {
     cursor: pointer;
     transition: background 0.3s, background-image 0.3s;
 }
+
 .calculator button:hover { 
     background-image: linear-gradient(to right, var(--primary-dark), var(--primary));
 }
@@ -86,12 +108,24 @@ canvas {
     margin-top: 1rem; 
     max-width: 100%; 
 }
+
+footer {
+    background-color: var(--primary-dark);
+    color: var(--bg-primary);
+    text-align: center;
+    padding: 1rem 2rem;
+    font-size: 0.9rem;
+}
 </style>
 </head>
 <body>
 
-<h1>Break-Even Calculator</h1>
+<header>
+    <img src="assets/logo-mark.png" alt="DGS Consulting Logo">
+    <h1>DGS Consulting Break-Even Calculator</h1>
+</header>
 
+<main>
 <div class="calculator">
     <label for="fixedCost">Fixed Costs ($)</label>
     <input type="number" id="fixedCost" placeholder="Enter fixed costs">
@@ -110,6 +144,11 @@ canvas {
         <canvas id="breakEvenChart"></canvas>
     </div>
 </div>
+</main>
+
+<footer>
+    &copy; 2025 DGS Consulting. All rights reserved. | <a href="https://dgsconsulting.github.io/" style="color: var(--bg-primary); text-decoration: underline;">Visit Tools</a>
+</footer>
 
 <script>
 const ctx = document.getElementById('breakEvenChart').getContext('2d');
