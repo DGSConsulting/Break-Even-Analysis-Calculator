@@ -119,9 +119,9 @@ let breakEvenChart = new Chart(ctx, {
     data: {
         labels: Array.from({length: 10}, (_, i) => i+1),
         datasets: [
-            { label: 'Total Revenue', data: Array(10).fill(0), borderColor: 'var(--success)', backgroundColor: 'rgba(16,185,129,0.2)', fill: true, tension: 0.4 },
-            { label: 'Total Costs', data: Array(10).fill(0), borderColor: 'var(--danger)', backgroundColor: 'rgba(239,68,68,0.2)', fill: true, tension: 0.4 },
-            { label: 'Break-Even Point', data: Array(10).fill(null), pointBackgroundColor: 'var(--warning)', pointBorderColor: 'var(--warning)', showLine: false, pointRadius: 8 }
+            { label: 'Total Revenue', data: Array(10).fill(0), borderColor: 'var(--primary)', backgroundColor: 'rgba(156,175,136,0.2)', fill: true, tension: 0.4 },
+            { label: 'Total Costs', data: Array(10).fill(0), borderColor: 'var(--secondary)', backgroundColor: 'rgba(107,142,90,0.2)', fill: true, tension: 0.4 },
+            { label: 'Break-Even Point', data: Array(10).fill(null), pointBackgroundColor: 'var(--primary-dark)', pointBorderColor: 'var(--primary-dark)', showLine: false, pointRadius: 8 }
         ]
     },
     options: {
