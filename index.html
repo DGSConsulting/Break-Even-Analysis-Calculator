@@ -1,135 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Break-Even Analysis Calculator | DGS Consulting</title>
-  <link rel="icon" type="image/png" href="assets/logo-mark.png">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background: #0f172a; color: #ffffff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 2rem; }
-    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; text-align: center; }
-    p.subtitle { font-size: 1.1rem; margin-bottom: 2rem; text-align: center; color: #cbd5e1; }
-    .calculator { background: #1e293b; padding: 2rem; border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 100%; max-width: 600px; }
-    .calculator label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-    .calculator input { width: 100%; padding: 0.75rem; margin-bottom: 1.5rem; border-radius: 0.5rem; border: none; background: #334155; color: #fff; font-size: 1rem; }
-    .calculator button { width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: none; background: #000000; color: #ffffff; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.3s ease; }
-    .calculator button:hover { background: #111827; }
-    .results { margin-top: 2rem; text-align: center; }
-    .results h2 { font-size: 1.5rem; margin-bottom: 1rem; }
-    canvas { margin-top: 1.5rem; max-width: 100%; }
-    .cta-button { margin-top: 2rem; padding: 0.75rem 1.5rem; border-radius: 0.5rem; background: #000000; color: #ffffff; font-weight: 600; font-size: 1rem; text-decoration: none; display: inline-block; }
-    .cta-button:hover { background: #111827; }
-    @media(max-width: 640px) { h1 { font-size: 2rem; } .calculator { padding: 1.5rem; } }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Break-Even Calculator | DGS Consulting</title>
+<link rel="icon" href="assets/logo-mark.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0f172a;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+}
+h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+.calculator {
+    background-color: #1e293b;
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.calculator label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+.calculator input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+    border: none;
+    background-color: #334155;
+    color: #fff;
+}
+.calculator button {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: none;
+    background-color: #000;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.calculator button:hover { background-color: #111827; }
+.results { margin-top: 1.5rem; text-align: center; }
+canvas { margin-top: 1rem; max-width: 100%; }
+</style>
 </head>
 <body>
 
-  <h1>Break-Even Analysis Calculator</h1>
-  <p class="subtitle">Quickly calculate your break-even point to understand your business profitability.</p>
+<h1>Break-Even Calculator</h1>
 
-  <div class="calculator">
+<div class="calculator">
     <label for="fixedCost">Fixed Costs ($)</label>
-    <input type="number" id="fixedCost" placeholder="Enter your fixed costs">
-
+    <input type="number" id="fixedCost" placeholder="Enter fixed costs">
+    
     <label for="variableCost">Variable Cost per Unit ($)</label>
     <input type="number" id="variableCost" placeholder="Enter variable cost per unit">
-
+    
     <label for="pricePerUnit">Price per Unit ($)</label>
     <input type="number" id="pricePerUnit" placeholder="Enter selling price per unit">
-
-    <button onclick="calculateBreakEven()">Calculate Break-Even Point</button>
+    
+    <button onclick="calculateBreakEven()">Calculate Break-Even</button>
 
     <div class="results" id="results" style="display:none;">
-      <h2>Break-Even Point</h2>
-      <p id="breakEvenUnits">Units: 0</p>
-      <p id="breakEvenRevenue">Revenue: $0</p>
-      <canvas id="breakEvenChart"></canvas>
+        <p id="breakEvenUnits">Units: 0</p>
+        <p id="breakEvenRevenue">Revenue: $0</p>
+        <canvas id="breakEvenChart"></canvas>
     </div>
-  </div>
+</div>
 
-  <a href="https://dgsconsulting.github.io/Request-Assessment-Form/" class="cta-button">Request a 30min Assessment</a>
+<script>
+function calculateBreakEven() {
+    const fixedCost = parseFloat(document.getElementById('fixedCost').value);
+    const variableCost = parseFloat(document.getElementById('variableCost').value);
+    const pricePerUnit = parseFloat(document.getElementById('pricePerUnit').value);
 
-  <script>
-    function calculateBreakEven() {
-      const fixedCost = parseFloat(document.getElementById('fixedCost').value);
-      const variableCost = parseFloat(document.getElementById('variableCost').value);
-      const pricePerUnit = parseFloat(document.getElementById('pricePerUnit').value);
-
-      if (isNaN(fixedCost) || isNaN(variableCost) || isNaN(pricePerUnit) || pricePerUnit <= variableCost) {
-        alert('Please enter valid numbers. Price per unit must be greater than variable cost.');
+    if (isNaN(fixedCost) || isNaN(variableCost) || isNaN(pricePerUnit) || pricePerUnit <= variableCost) {
+        alert('Enter valid numbers. Price must be greater than variable cost.');
         return;
-      }
+    }
 
-      const breakEvenUnits = fixedCost / (pricePerUnit - variableCost);
-      const breakEvenRevenue = breakEvenUnits * pricePerUnit;
+    const breakEvenUnits = fixedCost / (pricePerUnit - variableCost);
+    const breakEvenRevenue = breakEvenUnits * pricePerUnit;
 
-      document.getElementById('breakEvenUnits').innerText = `Units: ${breakEvenUnits.toFixed(2)}`;
-      document.getElementById('breakEvenRevenue').innerText = `Revenue: $${breakEvenRevenue.toFixed(2)}`;
-      document.getElementById('results').style.display = 'block';
+    document.getElementById('breakEvenUnits').innerText = `Units: ${breakEvenUnits.toFixed(2)}`;
+    document.getElementById('breakEvenRevenue').innerText = `Revenue: $${breakEvenRevenue.toFixed(2)}`;
+    document.getElementById('results').style.display = 'block';
 
-      // Chart data
-      const maxUnits = Math.ceil(breakEvenUnits * 2);
-      const labels = Array.from({length: maxUnits}, (_, i) => i+1);
-      const revenueData = labels.map(u => u * pricePerUnit);
-      const costData = labels.map(u => fixedCost + u * variableCost);
+    const maxUnits = Math.ceil(breakEvenUnits * 2);
+    const labels = Array.from({length: maxUnits}, (_, i) => i+1);
+    const revenueData = labels.map(u => u * pricePerUnit);
+    const costData = labels.map(u => fixedCost + u * variableCost);
 
-      // Destroy previous chart
-      const ctx = document.getElementById('breakEvenChart').getContext('2d');
-      if(window.breakEvenChart) window.breakEvenChart.destroy();
+    const ctx = document.getElementById('breakEvenChart').getContext('2d');
+    if(window.breakEvenChart) window.breakEvenChart.destroy();
 
-      window.breakEvenChart = new Chart(ctx, {
+    window.breakEvenChart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Total Revenue',
-              data: revenueData,
-              borderColor: '#22c55e',
-              backgroundColor: 'rgba(34, 197, 94, 0.2)',
-              fill: true,
-              tension: 0.4
-            },
-            {
-              label: 'Total Costs',
-              data: costData,
-              borderColor: '#ef4444',
-              backgroundColor: 'rgba(239, 68, 68, 0.2)',
-              fill: true,
-              tension: 0.4
-            },
-            {
-              label: 'Break-Even Point',
-              data: labels.map(u => u === Math.ceil(breakEvenUnits) ? breakEvenRevenue : null),
-              pointBackgroundColor: '#facc15',
-              pointBorderColor: '#f59e0b',
-              showLine: false,
-              pointRadius: 8
-            }
-          ]
+            labels: labels,
+            datasets: [
+                { label: 'Total Revenue', data: revenueData, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.2)', fill: true, tension: 0.4 },
+                { label: 'Total Costs', data: costData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.2)', fill: true, tension: 0.4 },
+                { label: 'Break-Even Point', data: labels.map(u => u === Math.ceil(breakEvenUnits) ? breakEvenRevenue : null), pointBackgroundColor: '#facc15', pointBorderColor: '#f59e0b', showLine: false, pointRadius: 8 }
+            ]
         },
         options: {
-          responsive: true,
-          plugins: {
-            legend: { labels: { color: '#fff' } },
-            tooltip: { mode: 'index', intersect: false }
-          },
-          scales: {
-            x: { ticks: { color: '#fff' }, title: { display: true, text: 'Units Sold', color: '#fff' } },
-            y: { ticks: { color: '#fff' }, title: { display: true, text: 'Dollars ($)', color: '#fff' } }
-          }
+            responsive: true,
+            plugins: { legend: { labels: { color: '#fff' } }, tooltip: { mode: 'index', intersect: false } },
+            scales: { x: { ticks: { color: '#fff' }, title: { display: true, text: 'Units Sold', color: '#fff' } },
+                      y: { ticks: { color: '#fff' }, title: { display: true, text: 'Dollars ($)', color: '#fff' } } }
         }
-      });
-    }
-  </script>
+    });
+}
+</script>
 
 </body>
 </html>
